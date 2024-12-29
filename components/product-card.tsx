@@ -246,20 +246,19 @@ export function ProductCard({ product, view }: ProductCardProps) {
           className={`flex flex-col ${isList ? "md:w-2/3 p-6" : "flex-1 p-4"}`}
         >
           <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+          <p className="text-sm text-muted-foreground mb-4">
             {product.description}
           </p>
 
-          {/* Özellikler */}
-          {isList && (
-            <div className="mb-4">
+          {product.features && product.features.length > 0 && (
+            <>
               <h4 className="font-medium mb-2">Özellikler:</h4>
               <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                 {product.features.slice(0, 3).map((feature, index) => (
                   <li key={index}>{feature}</li>
                 ))}
               </ul>
-            </div>
+            </>
           )}
 
           {/* Butonlar */}

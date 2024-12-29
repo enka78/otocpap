@@ -1,217 +1,160 @@
 "use client";
 
 import React from "react";
-import { useTranslations } from "next-intl";
+import { ArrowDown, ArrowUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import { CalendarDays, ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
+
+interface BlogPost {
+  id: number;
+  title: string;
+  content: string;
+  date: string;
+}
+
+const blogPosts: BlogPost[] = [
+  {
+    id: 1,
+    title: "Uyku Apnesi Nedir?",
+    content: `Uyku apnesi, uyku sırasında nefes alıp vermenin durması veya azalması ile karakterize edilen bir uyku bozukluğudur. Bu durumlar genellikle 10 saniye veya daha uzun sürer ve gece boyunca yüzlerce kez tekrarlanabilir.
+
+En yaygın türü olan Obstrüktif Uyku Apnesi (OSA), üst solunum yolunun kısmen veya tamamen tıkanması sonucu ortaya çıkar. Bu tıkanma, genellikle dilin veya yumuşak dokunun geriye kayması nedeniyle oluşur.
+
+Belirtiler:
+- Horlama
+- Gündüz aşırı uyku hali
+- Sabah baş ağrıları
+- Konsantrasyon güçlüğü
+- Hafıza sorunları
+- Gece sık uyanma
+
+Tedavi edilmediğinde:
+- Yüksek tansiyon
+- Kalp hastalıkları
+- Tip 2 diyabet
+- Depresyon
+gibi ciddi sağlık sorunlarına yol açabilir.`,
+    date: "2023-12-20",
+  },
+  {
+    id: 2,
+    title: "CPAP Cihazı Kullanım Rehberi",
+    content: `CPAP (Continuous Positive Airway Pressure) cihazı, uyku apnesi tedavisinde en yaygın kullanılan yöntemdir. Bu rehber, CPAP cihazınızı en etkili şekilde kullanmanıza yardımcı olacaktır.
+
+Temel Kullanım Adımları:
+1. Cihazı düz bir zemine yerleştirin
+2. Su haznesini temiz su ile doldurun
+3. Maskeyi yüzünüze uygun şekilde takın
+4. Cihazı çalıştırın ve rahat bir pozisyonda uyumaya çalışın
+
+Temizlik ve Bakım:
+- Maskeyi her gün temizleyin
+- Su haznesini haftada bir kez dezenfekte edin
+- Hortumu düzenli olarak kontrol edin
+- Filtreleri aylık olarak değiştirin
+
+Sık Karşılaşılan Sorunlar:
+1. Maske sızıntısı
+2. Burun kuruluğu
+3. Cilt tahrişi
+4. Gürültü
+
+Bu sorunların çoğu basit ayarlamalarla çözülebilir. Ciddi sorunlar için mutlaka doktorunuza danışın.`,
+    date: "2023-12-15",
+  },
+  {
+    id: 3,
+    title: "BiPAP ve CPAP Arasındaki Farklar",
+    content: `BiPAP (Bi-level Positive Airway Pressure) ve CPAP (Continuous Positive Airway Pressure) cihazları, uyku apnesi tedavisinde kullanılan iki farklı tedavi yöntemidir.
+
+CPAP:
+- Tek bir basınç seviyesi kullanır
+- Nefes alıp verme sırasında aynı basıncı uygular
+- Kullanımı daha basittir
+- Daha ekonomiktir
+
+BiPAP:
+- İki farklı basınç seviyesi kullanır
+- Nefes alma sırasında yüksek, verme sırasında düşük basınç uygular
+- Daha kompleks vakalarda tercih edilir
+- CPAP'a göre daha pahalıdır
+
+BiPAP genellikle şu durumlarda tercih edilir:
+- CPAP tedavisine yanıt alınamadığında
+- Yüksek basınç ihtiyacı olduğunda
+- KOAH gibi ek solunum problemleri varsa
+- Kalp yetmezliği durumlarında
+
+Hangi cihazın size uygun olduğuna doktorunuz karar verecektir.`,
+    date: "2023-12-10",
+  },
+];
 
 export default function BlogPage() {
-  const t = useTranslations();
-  const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("desc");
-
-  const blogPosts = [
-    {
-      title: "Uyku Apnesi Nedir?",
-      date: "2024-01-15",
-      summary:
-        "Uyku apnesi, uyku sırasında solunum duraklamaları ile karakterize edilen ciddi bir uyku bozukluğudur. Bu duraklamalar genellikle 10 saniye veya daha uzun sürer.",
-      content: `Uyku apnesi, uyku kalitesini önemli ölçüde etkileyen ve tedavi edilmediğinde ciddi sağlık sorunlarına yol açabilen bir rahatsızlıktır.
-
-      Belirtileri:
-      • Horlama
-      • Gündüz aşırı uyku hali
-      • Sabah baş ağrıları
-      • Konsantrasyon bozukluğu
-      • Yorgunluk
-      
-      Risk Faktörleri:
-      • Fazla kilo
-      • İleri yaş
-      • Erkek cinsiyet
-      • Boyun çevresinin kalın olması
-      • Aile öyküsü
-      
-      Tedavi edilmediğinde:
-      • Yüksek tansiyon
-      • Kalp hastalıkları
-      • Tip 2 diyabet
-      • İş ve trafik kazaları riski
-      gibi ciddi sorunlara yol açabilir.`,
-    },
-    {
-      title: "CPAP Cihazı Nedir ve Nasıl Kullanılır?",
-      date: "2024-01-10",
-      summary:
-        "CPAP (Continuous Positive Airway Pressure) cihazları, uyku apnesi tedavisinde kullanılan ve sürekli pozitif hava basıncı sağlayan medikal cihazlardır.",
-      content: `CPAP cihazları, uyku apnesi tedavisinde altın standart olarak kabul edilir ve hastaların yaşam kalitesini önemli ölçüde artırır.
-
-      Kullanım Adımları:
-      1. Cihazı düz bir zemine yerleştirin
-      2. Su haznesini temiz su ile doldurun
-      3. Maskeyi yüzünüze uygun şekilde takın
-      4. Cihazı çalıştırın ve rahat bir pozisyonda uyumaya çalışın
-      
-      Bakım ve Temizlik:
-      • Maskeyi her gün temizleyin
-      • Su haznesini günlük olarak boşaltın ve temizleyin
-      • Hortumu haftada bir kez temizleyin
-      • Filtreleri düzenli olarak kontrol edin ve değiştirin
-      
-      Dikkat Edilmesi Gerekenler:
-      • Maskenin yüzünüze tam oturduğundan emin olun
-      • Düzenli olarak doktor kontrolüne gidin
-      • Cihaz ayarlarını doktorunuza danışmadan değiştirmeyin`,
-    },
-    {
-      title: "BiPAP ve CPAP Arasındaki Farklar",
-      date: "2024-01-05",
-      summary:
-        "BiPAP cihazları, CPAP'tan farklı olarak nefes alıp verme sırasında iki farklı basınç seviyesi uygular. Bu özellik bazı hastalar için daha konforlu bir tedavi sağlar.",
-      content: `BiPAP (Bi-level Positive Airway Pressure) ve CPAP arasındaki temel farklar:
-
-      BiPAP'ın Özellikleri:
-      • Nefes alırken daha yüksek basınç (IPAP)
-      • Nefes verirken daha düşük basınç (EPAP)
-      • Daha doğal bir solunum hissi
-      • Akciğer hastalıkları olan hastalar için daha uygun
-      
-      CPAP'ın Özellikleri:
-      • Sabit basınç
-      • Daha basit kullanım
-      • Daha ekonomik
-      • Çoğu uyku apnesi hastası için yeterli
-      
-      Hangi Cihaz Size Uygun?
-      • Doktorunuz, uyku testi sonuçlarınıza göre
-      • Eşlik eden hastalıklarınıza göre
-      • Konfor tercihlerinize göre
-      size en uygun cihazı önerecektir.`,
-    },
-    {
-      title: "Oksijen Konsantratörü Kullanımı",
-      date: "2023-12-28",
-      summary:
-        "Oksijen konsantratörleri, havadaki oksijeni yoğunlaştırarak kullanan ve oksijen tedavisi gereken hastalara sürekli oksijen sağlayan cihazlardır.",
-      content: `Oksijen konsantratörleri, kronik solunum yetmezliği olan hastalar için hayati önem taşır.
-
-      Kullanım Alanları:
-      • KOAH (Kronik Obstrüktif Akciğer Hastalığı)
-      • Akciğer fibrozisi
-      • Kalp yetmezliği
-      • Uyku apnesi ile birlikte görülen oksijen düşüklüğü
-      
-      Cihaz Seçimi:
-      • Sabit veya taşınabilir olması
-      • Akış hızı kapasitesi
-      • Elektrik tüketimi
-      • Ses seviyesi
-      • Ek özellikler (nem, filtre vb.)
-      
-      Güvenlik Önlemleri:
-      • Sigara içilen ortamda kullanmayın
-      • Cihazı düzenli olarak temizleyin
-      • Filtreleri zamanında değiştirin
-      • Hortum ve kanülleri kontrol edin`,
-    },
-    {
-      title: "CPAP Maskesi Seçimi ve Bakımı",
-      date: "2023-12-20",
-      summary:
-        "Doğru maske seçimi ve düzenli bakımı, CPAP tedavisinin başarısında kritik rol oynar. Yüz yapınıza ve uyku pozisyonunuza uygun maske seçimi önemlidir.",
-      content: `Maske Tipleri:
-      1. Nazal Maske:
-      • Sadece burnu kapsar
-      • Minimal temas alanı
-      • Gözlük kullananlar için uygun
-      
-      2. Tam Yüz Maskesi:
-      • Burun ve ağzı kapsar
-      • Ağız solunumu yapanlar için ideal
-      • Yüksek basınçlarda daha etkili
-      
-      3. Nazal Yastık:
-      • En minimal temas
-      • Klaustrofobisi olanlar için uygun
-      • Yan yatanlar için ideal
-      
-      Maske Bakımı:
-      • Her sabah ılık su ve sabunla yıkayın
-      • Haftalık olarak detaylı temizlik yapın
-      • Yıpranma belirtilerini kontrol edin
-      • 6-12 ayda bir değiştirin
-      
-      Doğru Maske Seçimi İçin:
-      • Yüz yapınızı değerlendirin
-      • Uyku pozisyonunuzu dikkate alın
-      • Farklı maskeleri deneme imkanı isteyin
-      • Uzman görüşü alın`,
-    },
-  ];
+  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">(
+    "desc"
+  );
 
   const sortedPosts = React.useMemo(() => {
     return [...blogPosts].sort((a, b) => {
-      if (sortOrder === "desc") {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      }
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
     });
-  }, [sortOrder]);
+  }, [sortDirection]);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("tr-TR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const toggleSort = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
   return (
-    <div className="container px-4 py-8 md:py-12">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">Faydalı Bilgiler</h1>
-          <Button
-            variant="outline"
-            onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-            className="flex items-center gap-2"
-          >
-            <CalendarDays className="h-4 w-4" />
-            Tarihe Göre
-            {sortOrder === "desc" ? (
-              <ArrowDown className="h-4 w-4" />
-            ) : (
-              <ArrowUp className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-
-        <div className="space-y-6">
-          {sortedPosts.map((post, index) => (
-            <div key={index} className="bg-card rounded-lg border p-6">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                <CalendarDays className="h-4 w-4" />
-                <time dateTime={post.date}>{formatDate(post.date)}</time>
-              </div>
-              <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
-              <p className="text-muted-foreground mb-4">{post.summary}</p>
-              <Accordion type="single" collapsible>
-                <AccordionItem value="content">
-                  <AccordionTrigger>Devamını Oku</AccordionTrigger>
-                  <AccordionContent className="whitespace-pre-line">
-                    {post.content}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          ))}
-        </div>
+    <div className="container px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Faydalı Bilgiler</h1>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={toggleSort}
+          className="h-8 w-8"
+        >
+          {sortDirection === "asc" ? (
+            <ArrowUp className="h-4 w-4" />
+          ) : (
+            <ArrowDown className="h-4 w-4" />
+          )}
+        </Button>
       </div>
+
+      <Accordion type="single" collapsible className="space-y-4">
+        {sortedPosts.map((post) => (
+          <AccordionItem
+            key={post.id}
+            value={post.id.toString()}
+            className="border rounded-lg px-4"
+          >
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-left">
+                <span className="font-medium">{post.title}</span>
+                <span className="text-sm text-muted-foreground">
+                  {new Date(post.date).toLocaleDateString("tr-TR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground whitespace-pre-line">
+              {post.content}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
     </div>
   );
 }

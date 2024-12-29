@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useTranslations } from "next-intl";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Accordion,
   AccordionContent,
@@ -9,58 +9,87 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
 
 interface ProductFiltersProps {
-  onFilterChange: (filters: any) => void;
+  activeBrands: string[];
+  activeCategories: string[];
 }
 
-export function ProductFilters({ onFilterChange }: ProductFiltersProps) {
-  const t = useTranslations();
-  const [selectedBrands, setSelectedBrands] = React.useState<string[]>([]);
+const brands = [
+  { id: "philips", label: "Philips Respironics" },
+  { id: "resmed", label: "ResMed" },
+  { id: "fisher", label: "Fisher & Paykel" },
+  { id: "devilbiss", label: "DeVilbiss" },
+  { id: "inogen", label: "Inogen" },
+];
 
-  const categories = [
-    { id: "cpap", label: "CPAP" },
-    { id: "bipap", label: "BiPAP" },
-    { id: "oxygen", label: t("products.oxygenConcentrator") },
-    { id: "equipment", label: t("products.equipment") },
-    { id: "supplies", label: t("products.supplies") },
-  ];
+const categories = [
+  { id: "cpap", label: "CPAP" },
+  { id: "bipap", label: "BiPAP" },
+  { id: "masks", label: "Maskeler" },
+  { id: "accessories", label: "Aksesuarlar" },
+  { id: "oksijen-konsantratoru", label: "Oksijen Konsantratörü" },
+];
 
-  const brands = [
-    { id: "philips", label: "Philips Respironics" },
-    { id: "resmed", label: "ResMed" },
-    { id: "fisher", label: "Fisher & Paykel" },
-    { id: "devilbiss", label: "DeVilbiss" },
-    { id: "inogen", label: "Inogen" },
-  ];
+export function ProductFilters({
+  activeBrands,
+  activeCategories,
+}: ProductFiltersProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const handleCategoryChange = (checked: boolean, categoryId: string) => {
-    // Implement category filter logic
+  const updateFilters = (
+    type: "brands" | "categories",
+    value: string,
+    checked: boolean
+  ) => {
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    const currentValues =
+      newSearchParams.get(type)?.split(",").filter(Boolean) || [];
+
+    let newValues: string[];
+    if (checked) {
+      newValues = [...currentValues, value];
+    } else {
+      newValues = currentValues.filter((v) => v !== value);
+    }
+
+    if (newValues.length > 0) {
+      newSearchParams.set(type, newValues.join(","));
+    } else {
+      newSearchParams.delete(type);
+    }
+
+    router.push(`/products?${newSearchParams.toString()}`);
   };
 
-  const handleBrandChange = (checked: boolean, brandId: string) => {
-    // Implement brand filter logic
+  const handleBrandChange = (brandId: string, checked: boolean) => {
+    updateFilters("brands", brandId, checked);
   };
 
-  const handlePriceChange = (value: number[]) => {
-    setPriceRange(value);
-    // Implement price filter logic
+  const handleCategoryChange = (categoryId: string, checked: boolean) => {
+    updateFilters("categories", categoryId, checked);
+  };
+
+  const clearFilters = () => {
+    router.push("/products");
   };
 
   return (
-    <div className="w-[300px] space-y-4">
-      <Accordion type="single" collapsible defaultValue="categories">
+    <div className="w-full space-y-4">
+      <Accordion type="multiple" defaultValue={["categories", "brands"]}>
         <AccordionItem value="categories">
-          <AccordionTrigger>{t("filters.categories")}</AccordionTrigger>
+          <AccordionTrigger>Kategoriler</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-2">
               {categories.map((category) => (
                 <div key={category.id} className="flex items-center space-x-2">
                   <Checkbox
                     id={`category-${category.id}`}
+                    checked={activeCategories.includes(category.id)}
                     onCheckedChange={(checked) =>
-                      handleCategoryChange(checked as boolean, category.id)
+                      handleCategoryChange(category.id, checked as boolean)
                     }
                   />
                   <label
@@ -76,15 +105,16 @@ export function ProductFilters({ onFilterChange }: ProductFiltersProps) {
         </AccordionItem>
 
         <AccordionItem value="brands">
-          <AccordionTrigger>{t("filters.brands")}</AccordionTrigger>
+          <AccordionTrigger>Markalar</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-2">
               {brands.map((brand) => (
                 <div key={brand.id} className="flex items-center space-x-2">
                   <Checkbox
                     id={`brand-${brand.id}`}
+                    checked={activeBrands.includes(brand.id)}
                     onCheckedChange={(checked) =>
-                      handleBrandChange(checked as boolean, brand.id)
+                      handleBrandChange(brand.id, checked as boolean)
                     }
                   />
                   <label
@@ -99,6 +129,17 @@ export function ProductFilters({ onFilterChange }: ProductFiltersProps) {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+
+      {(activeBrands.length > 0 || activeCategories.length > 0) && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={clearFilters}
+          className="w-full"
+        >
+          Filtreleri Temizle
+        </Button>
+      )}
     </div>
   );
 }
