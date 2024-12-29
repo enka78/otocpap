@@ -25,7 +25,7 @@ Modern e-commerce website for CPAP, BiPAP, and oxygen concentrator devices.
 
 1. Clone the repository:
    \`\`\`bash
-   git clone https://github.com/yourusername/otocpap.git
+   git clone https://github.com/enka78/otocpap.git
    \`\`\`
 
 2. Install dependencies:
