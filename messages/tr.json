@@ -1,0 +1,55 @@
+{
+  "navigation": {
+    "home": "Ana Sayfa",
+    "products": "Ürünler",
+    "blog": "Faydalı Bilgiler",
+    "sleepTest": "Uyku Testi",
+    "about": "Hakkımızda",
+    "contact": "İletişim"
+  },
+  "theme": {
+    "light": "Açık",
+    "dark": "Koyu"
+  },
+  "products": {
+    "oxygenConcentrator": "Oksijen Konsantratörü",
+    "equipment": "Ekipman",
+    "supplies": "Sarf Malzeme",
+    "mostLiked": "En Çok Tercih Edilenler",
+    "featured": "Öne Çıkan Ürünler",
+    "addToCart": "Sepete Ekle",
+    "details": "Detaylar",
+    "gridSize": "Izgara Boyutu",
+    "threeColumns": "3 Sütun",
+    "fiveColumns": "5 Sütun",
+    "sort": "Sırala",
+    "sortPriceAsc": "Fiyat (Artan)",
+    "sortPriceDesc": "Fiyat (Azalan)",
+    "sortNewest": "En Yeniler"
+  },
+  "filters": {
+    "categories": "Kategoriler",
+    "brands": "Markalar",
+    "price": "Fiyat"
+  },
+  "categories": {
+    "cpap": "CPAP Cihazları",
+    "bipap": "BiPAP Cihazları",
+    "masks": "Maskeler",
+    "accessories": "Aksesuarlar",
+    "oxygen": "Oksijen Konsantratörü"
+  },
+  "categoryDescriptions": {
+    "cpap": "Uyku apnesi tedavisi için CPAP cihazları",
+    "bipap": "İleri düzey solunum desteği için BiPAP cihazları",
+    "masks": "Her yüz tipine uygun konforlu maskeler",
+    "accessories": "CPAP ve BiPAP cihazları için gerekli aksesuarlar",
+    "oxygen": "Taşınabilir ve ev tipi oksijen konsantratörleri"
+  },
+  "newsletter": {
+    "title": "E-Bültenimize Kayıt Olun",
+    "description": "Yeni ürünler, kampanyalar ve sağlık haberleri hakkında bilgi alın",
+    "emailPlaceholder": "E-posta adresiniz",
+    "subscribe": "Kayıt Ol"
+  }
+} 

@@ -1,0 +1,55 @@
+{
+  "navigation": {
+    "home": "Home",
+    "products": "Products",
+    "blog": "Blog",
+    "sleepTest": "Sleep Test",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "products": {
+    "oxygenConcentrator": "Oxygen Concentrator",
+    "equipment": "Equipment",
+    "supplies": "Supplies",
+    "mostLiked": "Most Popular",
+    "featured": "Featured Products",
+    "addToCart": "Add to Cart",
+    "details": "Details",
+    "gridSize": "Grid Size",
+    "threeColumns": "3 Columns",
+    "fiveColumns": "5 Columns",
+    "sort": "Sort",
+    "sortPriceAsc": "Price (Low to High)",
+    "sortPriceDesc": "Price (High to Low)",
+    "sortNewest": "Newest"
+  },
+  "filters": {
+    "categories": "Categories",
+    "brands": "Brands",
+    "price": "Price"
+  },
+  "categories": {
+    "cpap": "CPAP Devices",
+    "bipap": "BiPAP Devices",
+    "masks": "Masks",
+    "accessories": "Accessories",
+    "oxygen": "Oxygen Concentrator"
+  },
+  "categoryDescriptions": {
+    "cpap": "CPAP devices for sleep apnea treatment",
+    "bipap": "BiPAP devices for advanced respiratory support",
+    "masks": "Comfortable masks for every face type",
+    "accessories": "Essential accessories for CPAP and BiPAP devices",
+    "oxygen": "Portable and home oxygen concentrators"
+  },
+  "newsletter": {
+    "title": "Subscribe to Our Newsletter",
+    "description": "Get updates about new products, promotions, and health news",
+    "emailPlaceholder": "Your email address",
+    "subscribe": "Subscribe"
+  }
+} 
