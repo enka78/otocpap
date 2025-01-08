@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ProductFilters } from "@/components/product-filters";
 import { ProductCard } from "@/components/product-card";
@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useEffect } from "react";
 
 // Örnek ürün verisi
 const products = [
@@ -78,10 +79,35 @@ type SortOption = "featured" | "price-asc" | "price-desc";
 
 export default function ShopPage() {
   const t = useTranslations();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [viewMode, setViewMode] = React.useState<ViewMode>("grid-3");
   const [sortOption, setSortOption] = React.useState<SortOption>("featured");
   const [isMobile, setIsMobile] = React.useState(false);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const checkAuth = async () => {
+      try {
+        // Get authentication status from localStorage
+        const token = localStorage.getItem("token");
+        const isLoggedIn = !!token;
+
+        setIsAuthenticated(isLoggedIn);
+
+        // If not authenticated, redirect to login page
+        if (!isLoggedIn) {
+          router.push("/login");
+        }
+      } catch (error) {
+        console.error("Authentication check failed:", error);
+        router.push("/login");
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   React.useEffect(() => {
     const checkMobile = () => {
@@ -91,6 +117,11 @@ export default function ShopPage() {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // If not authenticated, don't render the shop content
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const categories = searchParams.get("categories")?.split(",") || [];
   const brands = searchParams.get("brands")?.split(",") || [];
