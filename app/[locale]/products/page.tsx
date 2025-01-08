@@ -6,6 +6,7 @@ import { Grid2X2, Grid3X3, List as ListIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters } from "@/components/product-filters";
+import { ProductSkeleton } from "@/components/product-skeleton";
 import { products } from "@/data/products";
 
 type ViewMode = "grid-4" | "grid-3" | "list";
@@ -14,6 +15,7 @@ export default function ProductsPage() {
   const searchParams = useSearchParams();
   const [viewMode, setViewMode] = React.useState<ViewMode>("grid-3");
   const [isMobile, setIsMobile] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     const checkMobile = () => {
@@ -22,6 +24,14 @@ export default function ProductsPage() {
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  React.useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   const activeBrands = React.useMemo(() => {
@@ -96,13 +106,25 @@ export default function ProductsPage() {
                 : "grid-cols-1"
             }`}
           >
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                view={isMobile ? "list" : viewMode === "list" ? "list" : "grid"}
-              />
-            ))}
+            {isLoading
+              ? // Loading state
+                Array.from({ length: 6 }).map((_, index) => (
+                  <ProductSkeleton
+                    key={index}
+                    view={
+                      isMobile ? "list" : viewMode === "list" ? "list" : "grid"
+                    }
+                  />
+                ))
+              : // Loaded state
+                filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    listView={viewMode === "list"}
+                    showPrice={false}
+                  />
+                ))}
           </div>
         </div>
       </div>

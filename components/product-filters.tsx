@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import {
   Accordion,
   AccordionContent,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 
 interface ProductFiltersProps {
   activeBrands: string[];
@@ -32,36 +33,58 @@ const categories = [
   { id: "oksijen-konsantratoru", label: "Oksijen Konsantratörü" },
 ];
 
+const priceRanges = {
+  min: 0,
+  max: 20000,
+};
+
 export function ProductFilters({
   activeBrands,
   activeCategories,
 }: ProductFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const isShopPage = pathname.includes("/shop");
+  const [priceRange, setPriceRange] = React.useState<number[]>([
+    Number(searchParams.get("minPrice")) || priceRanges.min,
+    Number(searchParams.get("maxPrice")) || priceRanges.max,
+  ]);
 
   const updateFilters = (
-    type: "brands" | "categories",
-    value: string,
-    checked: boolean
+    type: "brands" | "categories" | "price",
+    value: string | number[],
+    checked?: boolean
   ) => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
-    const currentValues =
-      newSearchParams.get(type)?.split(",").filter(Boolean) || [];
 
-    let newValues: string[];
-    if (checked) {
-      newValues = [...currentValues, value];
+    if (type === "price") {
+      const [min, max] = value as number[];
+      newSearchParams.set("minPrice", min.toString());
+      newSearchParams.set("maxPrice", max.toString());
     } else {
-      newValues = currentValues.filter((v) => v !== value);
+      const currentValues =
+        newSearchParams.get(type)?.split(",").filter(Boolean) || [];
+
+      let newValues: string[];
+      if (checked !== undefined) {
+        if (checked) {
+          newValues = [...currentValues, value as string];
+        } else {
+          newValues = currentValues.filter((v) => v !== value);
+        }
+      } else {
+        newValues = currentValues;
+      }
+
+      if (newValues.length > 0) {
+        newSearchParams.set(type, newValues.join(","));
+      } else {
+        newSearchParams.delete(type);
+      }
     }
 
-    if (newValues.length > 0) {
-      newSearchParams.set(type, newValues.join(","));
-    } else {
-      newSearchParams.delete(type);
-    }
-
-    router.push(`/products?${newSearchParams.toString()}`);
+    router.push(`${pathname}?${newSearchParams.toString()}`);
   };
 
   const handleBrandChange = (brandId: string, checked: boolean) => {
@@ -72,13 +95,32 @@ export function ProductFilters({
     updateFilters("categories", categoryId, checked);
   };
 
-  const clearFilters = () => {
-    router.push("/products");
+  const handlePriceChange = (value: number[]) => {
+    setPriceRange(value);
+    updateFilters("price", value);
   };
+
+  const clearFilters = () => {
+    router.push(pathname);
+    setPriceRange([priceRanges.min, priceRanges.max]);
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("tr-TR", {
+      style: "currency",
+      currency: "TRY",
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const defaultAccordionValues = ["categories", "brands"];
+  if (isShopPage) {
+    defaultAccordionValues.push("price");
+  }
 
   return (
     <div className="w-full space-y-4">
-      <Accordion type="multiple" defaultValue={["categories", "brands"]}>
+      <Accordion type="multiple" defaultValue={defaultAccordionValues}>
         <AccordionItem value="categories">
           <AccordionTrigger>Kategoriler</AccordionTrigger>
           <AccordionContent>
@@ -128,9 +170,35 @@ export function ProductFilters({
             </div>
           </AccordionContent>
         </AccordionItem>
+
+        {isShopPage && (
+          <AccordionItem value="price">
+            <AccordionTrigger>Fiyat Aralığı</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-4 px-2">
+                <Slider
+                  min={priceRanges.min}
+                  max={priceRanges.max}
+                  step={100}
+                  value={priceRange}
+                  onValueChange={handlePriceChange}
+                  className="mt-6"
+                />
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">{formatPrice(priceRange[0])}</span>
+                  <span className="text-sm">{formatPrice(priceRange[1])}</span>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
       </Accordion>
 
-      {(activeBrands.length > 0 || activeCategories.length > 0) && (
+      {(activeBrands.length > 0 ||
+        activeCategories.length > 0 ||
+        (isShopPage &&
+          (priceRange[0] !== priceRanges.min ||
+            priceRange[1] !== priceRanges.max))) && (
         <Button
           variant="outline"
           size="sm"
