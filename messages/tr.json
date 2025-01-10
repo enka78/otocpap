@@ -25,19 +25,29 @@
     "sort": "Sırala",
     "sortPriceAsc": "Fiyat (Artan)",
     "sortPriceDesc": "Fiyat (Azalan)",
-    "sortNewest": "En Yeniler"
+    "sortNewest": "En Yeniler",
+    "sortBy": {
+      "featured": "Öne Çıkanlar",
+      "priceAsc": "Fiyat: Düşükten Yükseğe",
+      "priceDesc": "Fiyat: Yüksekten Düşüğe"
+    }
   },
   "filters": {
+    "title": "Filtreler",
     "categories": "Kategoriler",
     "brands": "Markalar",
-    "price": "Fiyat"
+    "price": "Fiyat",
+    "minPrice": "Min Fiyat",
+    "maxPrice": "Max Fiyat",
+    "apply": "Uygula",
+    "clear": "Temizle"
   },
   "categories": {
     "cpap": "CPAP Cihazları",
     "bipap": "BiPAP Cihazları",
     "masks": "Maskeler",
     "accessories": "Aksesuarlar",
-    "oxygen": "Oksijen Konsantratörü"
+    "oxygen_concentrator": "Oksijen Konsantratörleri"
   },
   "categoryDescriptions": {
     "cpap": "Uyku apnesi tedavisi için CPAP cihazları",

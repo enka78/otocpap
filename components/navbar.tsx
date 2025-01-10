@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { setTheme, setLocale } from "@/store/themeSlice";
-import { ChevronDown, Menu, Moon, ShoppingCart, Sun, X } from "lucide-react";
+import { ChevronDown, Menu, Moon, Sun, X } from "lucide-react";
 import { MegaMenu } from "./mega-menu";
+import { CartSheet } from "./cart-sheet";
 
 export function Navbar() {
   const t = useTranslations();
@@ -152,12 +153,13 @@ export function Navbar() {
               className="flex items-center gap-2 text-sm font-medium relative group"
             >
               <span>Shop</span>
-              <ShoppingCart className="h-4 w-4" />
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
             </Link>
           </div>
 
           <div className="flex items-center gap-2">
+            <CartSheet />
+
             <Button
               variant="ghost"
               size="icon"
@@ -236,11 +238,10 @@ export function Navbar() {
               ))}
               <Link
                 href={`/${currentLocale}/shop`}
-                className="flex items-center gap-2 p-2 hover:bg-accent rounded-lg"
+                className="block p-2 hover:bg-accent rounded-lg"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <span>Shop</span>
-                <ShoppingCart className="h-4 w-4" />
+                Shop
               </Link>
             </div>
           </div>

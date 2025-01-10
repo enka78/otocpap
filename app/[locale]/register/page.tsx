@@ -1,171 +1,134 @@
 "use client";
 
-import React from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
-import { Eye, EyeOff } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { useDispatch } from "react-redux";
+import { login } from "@/store/authSlice";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function RegisterPage() {
-  const t = useTranslations();
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [passwordError, setPasswordError] = React.useState("");
-  const [formData, setFormData] = React.useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    password: "",
-  });
+  const { toast } = useToast();
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  const validatePassword = (password: string) => {
-    if (password.length < 6 || password.length > 8) {
-      return "Şifre 6-8 karakter uzunluğunda olmalıdır";
-    }
-    if (!/[A-Z]/.test(password)) {
-      return "Şifre en az bir büyük harf içermelidir";
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      return "Şifre en az bir özel karakter içermelidir";
-    }
-    return "";
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newPassword = e.target.value;
-    setFormData({ ...formData, password: newPassword });
-    setPasswordError(validatePassword(newPassword));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const error = validatePassword(formData.password);
-    if (error) {
-      setPasswordError(error);
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Hata",
+        description: "Şifreler eşleşmiyor.",
+        variant: "destructive",
+      });
       return;
     }
-    // Form submission logic will be added later
-    console.log(formData);
+
+    try {
+      // Burada normalde API'ye istek atılacak
+      // Şimdilik dummy register yapıyoruz
+      dispatch(
+        login({
+          id: "1",
+          name: name,
+          email: email,
+        })
+      );
+
+      toast({
+        title: "Başarılı",
+        description: "Hesabınız oluşturuldu.",
+      });
+
+      // Başarılı kayıttan sonra shop sayfasına yönlendir
+      router.push("/shop");
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Kayıt yapılamadı. Lütfen bilgilerinizi kontrol edin.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
-    <div className="container px-4 py-8 md:py-12">
-      <div className="max-w-md mx-auto space-y-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Kayıt Ol</h1>
-          <p className="text-muted-foreground mt-2">
-            Hesap oluşturarak alışverişe başlayabilirsiniz.
+    <div className="container max-w-md py-16">
+      <div className="space-y-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold">Hesap Oluştur</h1>
+          <p className="text-muted-foreground">
+            Yeni bir hesap oluşturarak alışverişe başlayın
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <label htmlFor="firstName" className="text-sm font-medium">
-                Ad
-              </label>
-              <Input
-                id="firstName"
-                placeholder="Adınız"
-                value={formData.firstName}
-                onChange={(e) =>
-                  setFormData({ ...formData, firstName: e.target.value })
-                }
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="lastName" className="text-sm font-medium">
-                Soyad
-              </label>
-              <Input
-                id="lastName"
-                placeholder="Soyadınız"
-                value={formData.lastName}
-                onChange={(e) =>
-                  setFormData({ ...formData, lastName: e.target.value })
-                }
-                required
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="name">Ad Soyad</Label>
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="Ad Soyad"
+              required
+            />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
-              E-posta
-            </label>
+            <Label htmlFor="email">E-posta</Label>
             <Input
               id="email"
+              name="email"
               type="email"
-              placeholder="ornek@email.com"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
+              placeholder="ornek@mail.com"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="phone" className="text-sm font-medium">
-              Telefon
-            </label>
+            <Label htmlFor="password">Şifre</Label>
+            <Input id="password" name="password" type="password" required />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Şifre Tekrar</Label>
             <Input
-              id="phone"
-              type="tel"
-              placeholder="05XX XXX XX XX"
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
-              }
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
               required
             />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
-              Şifre
-            </label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handlePasswordChange}
-                required
-                minLength={6}
-                maxLength={8}
-                className={passwordError ? "border-red-500" : ""}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <Eye className="h-4 w-4 text-muted-foreground" />
-                )}
-              </Button>
-            </div>
-            {passwordError && (
-              <p className="text-sm text-red-500 mt-1">{passwordError}</p>
-            )}
-            <p className="text-xs text-muted-foreground mt-1">
-              Şifreniz 6-8 karakter uzunluğunda olmalı, en az bir büyük harf ve
-              bir özel karakter içermelidir.
-            </p>
           </div>
 
           <Button type="submit" className="w-full">
-            Kayıt Ol
+            Hesap Oluştur
           </Button>
         </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t"></div>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Zaten hesabınız var mı?
+            </span>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <Link href="/login">
+            <Button variant="outline" className="w-full">
+              Giriş Yap
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

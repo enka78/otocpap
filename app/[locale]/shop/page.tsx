@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { use } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ProductFilters } from "@/components/product-filters";
@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 // Örnek ürün verisi
 const products = [
@@ -72,42 +74,54 @@ const products = [
     category: "accessories",
     brand: "philips",
   },
+  {
+    id: "7",
+    title: "Inogen One G5 Oksijen Konsantratörü",
+    description:
+      "Taşınabilir oksijen konsantratörü, 6 akış ayarı, 13 saate kadar pil ömrü",
+    price: 85000,
+    image: "https://placehold.co/600x400",
+    category: "oksijen-konsantratoru",
+    brand: "inogen",
+  },
+  {
+    id: "8",
+    title: "DeVilbiss 5L Oksijen Konsantratörü",
+    description:
+      "Ev tipi oksijen konsantratörü, 5 litre/dakika akış hızı, sessiz çalışma",
+    price: 45000,
+    image: "https://placehold.co/600x400",
+    category: "oksijen-konsantratoru",
+    brand: "devilbiss",
+  },
 ];
 
 type ViewMode = "grid-4" | "grid-3" | "list";
 type SortOption = "featured" | "price-asc" | "price-desc";
 
-export default function ShopPage() {
+export default function ShopPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = use(params);
   const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [viewMode, setViewMode] = React.useState<ViewMode>("grid-3");
   const [sortOption, setSortOption] = React.useState<SortOption>("featured");
   const [isMobile, setIsMobile] = React.useState(false);
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
 
   useEffect(() => {
-    // Check if user is authenticated
-    const checkAuth = async () => {
-      try {
-        // Get authentication status from localStorage
-        const token = localStorage.getItem("token");
-        const isLoggedIn = !!token;
-
-        setIsAuthenticated(isLoggedIn);
-
-        // If not authenticated, redirect to login page
-        if (!isLoggedIn) {
-          router.push("/login");
-        }
-      } catch (error) {
-        console.error("Authentication check failed:", error);
-        router.push("/login");
-      }
-    };
-
-    checkAuth();
-  }, [router]);
+    // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
+    if (!isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, router]);
 
   React.useEffect(() => {
     const checkMobile = () => {
@@ -118,7 +132,7 @@ export default function ShopPage() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // If not authenticated, don't render the shop content
+  // Kullanıcı giriş yapmamışsa içeriği gösterme
   if (!isAuthenticated) {
     return null;
   }
@@ -152,6 +166,16 @@ export default function ShopPage() {
     }
   });
 
+  const handleLogin = () => {
+    dispatch(
+      login({
+        id: "1",
+        name: "Test User",
+        email: "test@example.com",
+      })
+    );
+  };
+
   return (
     <div className="container py-8">
       <div className="flex flex-col md:flex-row gap-8">
@@ -184,15 +208,17 @@ export default function ShopPage() {
                 onValueChange={(value) => setSortOption(value as SortOption)}
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sıralama" />
+                  <SelectValue placeholder={t("products.sortBy.featured")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="featured">Öne Çıkanlar</SelectItem>
+                  <SelectItem value="featured">
+                    {t("products.sortBy.featured")}
+                  </SelectItem>
                   <SelectItem value="price-asc">
-                    Fiyat: Düşükten Yükseğe
+                    {t("products.sortBy.priceAsc")}
                   </SelectItem>
                   <SelectItem value="price-desc">
-                    Fiyat: Yüksekten Düşüğe
+                    {t("products.sortBy.priceDesc")}
                   </SelectItem>
                 </SelectContent>
               </Select>

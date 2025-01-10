@@ -5,7 +5,6 @@ import { HeroSlider } from "@/components/hero-slider";
 import { ProductSlider } from "@/components/product-slider";
 import { FeaturedProducts } from "@/components/featured-products";
 import { Newsletter } from "@/components/newsletter";
-import { Footer } from "@/components/footer";
 import { ProductSkeleton } from "@/components/product-skeleton";
 import { useTranslations } from "next-intl";
 
@@ -57,7 +56,6 @@ export default function Home() {
         </div>
       </section>
       <Newsletter />
-      <Footer />
     </>
   );
 }
