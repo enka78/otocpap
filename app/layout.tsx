@@ -7,6 +7,7 @@ import { Navbar } from "@/components/navbar";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
 import { useMessages } from "next-intl";
+import { Footer } from "@/components/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -43,10 +44,7 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <div className="relative flex min-h-screen flex-col">
-                <Navbar />
-                <main className="flex-1">{children}</main>
-              </div>
+              {children}
             </ThemeProvider>
           </Providers>
         </NextIntlClientProvider>

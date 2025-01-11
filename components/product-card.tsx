@@ -2,277 +2,146 @@
 
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Product } from "@/types";
-import { X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { useTranslations } from "next-intl";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "@/store/cartSlice";
+import { RootState } from "@/store";
+import { useToast } from "@/components/ui/use-toast";
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  category: string;
+  brand: string;
+}
 
 interface ProductCardProps {
   product: Product;
-  view: "grid" | "list";
+  listView?: boolean;
+  showPrice?: boolean;
 }
 
-export function ProductCard({ product, view }: ProductCardProps) {
-  const t = useTranslations();
+export function ProductCard({
+  product,
+  listView = false,
+  showPrice = false,
+}: ProductCardProps) {
+  const dispatch = useDispatch();
+  const { toast } = useToast();
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+
   const whatsappNumber = "905532808273";
   const whatsappMessage = encodeURIComponent(
     `Merhaba, ${product.name} ürünü hakkında bilgi almak istiyorum.`
   );
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
-  const isList = view === "list";
-  const [isDetailOpen, setIsDetailOpen] = React.useState(false);
-  const [isMobile, setIsMobile] = React.useState(false);
 
-  React.useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+  const handleAddToCart = () => {
+    const existingItem = cartItems.find((item) => item.id === product.id);
+    if (existingItem) {
+      toast({
+        title: "Ürün zaten sepetinizde",
+        description: "Bu ürün zaten sepetinizde bulunuyor.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+    dispatch(addToCart({ ...product, quantity: 1 }));
+    toast({
+      title: "Ürün sepete eklendi",
+      description: "Ürün başarıyla sepetinize eklendi.",
+    });
+  };
 
-  // Mobil için tam ekran detay popup'ı
-  const MobileDetailPopup = () => (
-    <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
-      <div className="min-h-screen">
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-background border-b p-4 flex justify-between items-center">
-          <h2 className="text-lg font-bold">{product.name}</h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsDetailOpen(false)}
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-
-        {/* Content */}
-        <div className="p-4 space-y-6">
-          {/* Ürün Görseli */}
-          <div className="relative w-full aspect-square rounded-lg overflow-hidden">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-cover"
-            />
-          </div>
-
-          {/* Ürün Bilgileri */}
-          <div className="space-y-4">
-            {/* Marka */}
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Marka
-              </h3>
-              <p className="text-base">{product.brand}</p>
-            </div>
-
-            {/* Açıklama */}
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Açıklama
-              </h3>
-              <p className="text-base">{product.description}</p>
-            </div>
-
-            {/* Özellikler */}
-            {product.features && product.features.length > 0 && (
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  Özellikler
-                </h3>
-                <ul className="list-disc list-inside space-y-1">
-                  {product.features.map((feature, index) => (
-                    <li key={index} className="text-base">
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Teknik Özellikler */}
-            {product.specifications && (
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  Teknik Özellikler
-                </h3>
-                <div className="space-y-2">
-                  {Object.entries(product.specifications).map(
-                    ([key, value]) => (
-                      <div key={key} className="flex justify-between">
-                        <span className="text-muted-foreground">{key}</span>
-                        <span>{value}</span>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* İletişim Butonu */}
-          <div className="sticky bottom-0 bg-background py-4">
-            <Button asChild className="w-full" size="lg">
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                WhatsApp ile İletişime Geç
-              </a>
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Desktop için dialog popup'ı
-  const DesktopDetailDialog = () => (
-    <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>{product.name}</DialogTitle>
-        </DialogHeader>
-        <div className="grid grid-cols-2 gap-6">
-          {/* Sol Taraf - Görsel */}
-          <div className="relative aspect-square rounded-lg overflow-hidden">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-cover"
-            />
-          </div>
-
-          {/* Sağ Taraf - Bilgiler */}
-          <div className="space-y-4">
-            {/* Marka */}
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Marka
-              </h3>
-              <p className="text-base">{product.brand}</p>
-            </div>
-
-            {/* Açıklama */}
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Açıklama
-              </h3>
-              <p className="text-base">{product.description}</p>
-            </div>
-
-            {/* Özellikler */}
-            {product.features && product.features.length > 0 && (
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  Özellikler
-                </h3>
-                <ul className="list-disc list-inside space-y-1">
-                  {product.features.map((feature, index) => (
-                    <li key={index} className="text-base">
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Teknik Özellikler */}
-            {product.specifications && (
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  Teknik Özellikler
-                </h3>
-                <div className="space-y-2">
-                  {Object.entries(product.specifications).map(
-                    ([key, value]) => (
-                      <div key={key} className="flex justify-between">
-                        <span className="text-muted-foreground">{key}</span>
-                        <span>{value}</span>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* İletişim Butonu */}
-            <Button asChild className="w-full" size="lg">
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                WhatsApp ile İletişime Geç
-              </a>
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+  const formattedPrice = new Intl.NumberFormat("tr-TR", {
+    style: "currency",
+    currency: "TRY",
+  }).format(product.price);
 
   return (
-    <>
-      <div
-        className={`group relative bg-card rounded-lg border transition-all duration-300 hover:shadow-lg ${
-          isList ? "md:flex md:gap-6" : "flex flex-col"
-        }`}
-      >
-        {/* Resim Bölümü */}
-        <div
-          className={`relative overflow-hidden rounded-t-lg ${
-            isList
-              ? "md:w-1/3 md:rounded-l-lg md:rounded-t-none h-[200px] md:h-auto"
-              : "w-full aspect-[4/3]"
-          }`}
-        >
+    <div
+      className={`group relative rounded-lg border p-4 hover:border-primary transition-colors ${
+        listView ? "flex gap-6" : ""
+      }`}
+    >
+      <div className={listView ? "w-48 flex-shrink-0" : ""}>
+        <div className="relative aspect-square overflow-hidden rounded-md">
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-transform group-hover:scale-105"
           />
-        </div>
-
-        {/* İçerik Bölümü */}
-        <div
-          className={`flex flex-col ${isList ? "md:w-2/3 p-6" : "flex-1 p-4"}`}
-        >
-          <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            {product.description}
-          </p>
-
-          {product.features && product.features.length > 0 && (
-            <>
-              <h4 className="font-medium mb-2">Özellikler:</h4>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                {product.features.slice(0, 3).map((feature, index) => (
-                  <li key={index}>{feature}</li>
-                ))}
-              </ul>
-            </>
-          )}
-
-          {/* Butonlar */}
-          <div className="mt-auto">
-            <Button className="w-full" onClick={() => setIsDetailOpen(true)}>
-              İncele
-            </Button>
-          </div>
         </div>
       </div>
 
-      {/* Ekran boyutuna göre uygun popup'ı göster */}
-      {isDetailOpen &&
-        (isMobile ? <MobileDetailPopup /> : <DesktopDetailDialog />)}
-    </>
+      <div className="space-y-2 pt-4">
+        <h3 className="font-medium">{product.name}</h3>
+        {showPrice && <div className="text-lg font-bold">{formattedPrice}</div>}
+        <p className="text-sm text-muted-foreground line-clamp-2">
+          {product.description}
+        </p>
+
+        <div className="flex gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                Detaylar
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{product.name}</DialogTitle>
+                <DialogDescription className="space-y-4 pt-4">
+                  <div className="relative aspect-video overflow-hidden rounded-lg">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <p>{product.description}</p>
+                  {showPrice && (
+                    <div className="text-lg font-bold">{formattedPrice}</div>
+                  )}
+                  {showPrice && (
+                    <div className="flex gap-2">
+                      <Button onClick={handleAddToCart} className="flex-1">
+                        Sepete Ekle
+                      </Button>
+                    </div>
+                  )}
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+          {showPrice ? (
+            <Button onClick={handleAddToCart} size="sm">
+              Sepete Ekle
+            </Button>
+          ) : (
+            <Button
+              onClick={() => window.open(whatsappUrl, "_blank")}
+              size="sm"
+            >
+              Whatsapp ile iletişime geç
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,14 +1,11 @@
-import { Navbar } from "@/components/navbar";
 import { HeroSlider } from "@/components/hero-slider";
 import { ProductSlider } from "@/components/product-slider";
 import { FeaturedProducts } from "@/components/featured-products";
 import { Newsletter } from "@/components/newsletter";
-import { Footer } from "@/components/footer";
 
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <Navbar />
       <main>
         <HeroSlider />
         <section className="py-20">
@@ -29,7 +26,6 @@ export default function Home() {
         </section>
       </main>
       <Newsletter />
-      <Footer />
     </div>
   );
 }
