@@ -13,8 +13,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearCart } from "@/store/cartSlice";
+import { useRouter } from "next/navigation";
+import { RootState } from "@/store";
 
 interface CheckoutStepsProps {
   isOpen: boolean;
@@ -37,7 +39,7 @@ type PaymentMethod = "havale" | "kapidaodeme";
 const SHIPPING_COST = {
   DOMESTIC: 600,
   INTERNATIONAL: 800,
-};
+} as const;
 
 const BANK_ACCOUNTS = [
   {
@@ -75,27 +77,38 @@ export function CheckoutSteps({
     React.useState<PaymentMethod>("havale");
   const { toast } = useToast();
   const dispatch = useDispatch();
+  const router = useRouter();
+  const { currentLocale } = useSelector((state: RootState) => state.theme);
 
   // Teslimat konumu kontrolleri
-  const isInIstanbul = deliveryAddress.city.toLowerCase().includes("istanbul");
+  const isInIstanbul = ["istanbul", "İstanbul"].includes(
+    deliveryAddress.city.trim()
+  );
   const isInTurkey = deliveryAddress.country.toLowerCase() === "türkiye";
+
+  // Cihaz satın alınıp alınmadığını kontrol et
+  const hasDevice = cartItems.some((item) =>
+    ["cpap", "bipap", "oksijen-konsantratoru"].includes(
+      item.category.toLowerCase()
+    )
+  );
 
   // Kargo ücretini hesapla
   const calculateShippingCost = () => {
     if (!deliveryAddress.city || !deliveryAddress.country) return 0;
 
-    // İstanbul içi ücretsiz teslimat (cihaz satın alındıysa)
-    if (isInIstanbul && hasDevice) {
+    // İstanbul içi kapıda ödeme için kargo ücreti yok
+    if (isInIstanbul && paymentMethod === "kapidaodeme") {
       return 0;
     }
 
     // Yurt dışı kargo ücreti
     if (!isInTurkey) {
-      return SHIPPING_COST.INTERNATIONAL; // 800 TL
+      return SHIPPING_COST.INTERNATIONAL;
     }
 
-    // Yurt içi kargo ücreti (İstanbul dahil)
-    return SHIPPING_COST.DOMESTIC; // 600 TL
+    // İstanbul dışı ve yurt içi kargo ücreti
+    return SHIPPING_COST.DOMESTIC;
   };
 
   // Adım 2'ye geçerken ödeme metodunu kontrol et ve gerekirse güncelle
@@ -108,13 +121,6 @@ export function CheckoutSteps({
       });
     }
   }, [isInIstanbul, paymentMethod]);
-
-  // Cihaz satın alınıp alınmadığını kontrol et
-  const hasDevice = cartItems.some((item) =>
-    ["cpap", "bipap", "oxygen_concentrator"].includes(
-      item.category.toLowerCase()
-    )
-  );
 
   const shippingCost = calculateShippingCost();
   const finalTotal = totalPrice + shippingCost;
@@ -141,282 +147,242 @@ export function CheckoutSteps({
   };
 
   const handlePaymentSubmit = () => {
-    // WhatsApp mesajını oluştur
-    const message = `Merhaba, aşağıdaki sipariş detayları için bilgi almak istiyorum:
+    // Sipariş oluştur
+    const newOrder = {
+      id: Math.random().toString(36).substr(2, 9),
+      date: new Date().toISOString(),
+      total: finalTotal,
+      status: "preparing",
+      items: cartItems.map((item) => ({
+        title: item.title,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+    };
 
-🛒 Sipariş Detayları:
-${cartItems
-  .map(
-    (item) =>
-      `- ${item.title} (${item.quantity} adet) - ${new Intl.NumberFormat(
-        "tr-TR",
-        {
-          style: "currency",
-          currency: "TRY",
-        }
-      ).format(item.price * item.quantity)}`
-  )
-  .join("\n")}
-
-💰 Ara Toplam: ${new Intl.NumberFormat("tr-TR", {
-      style: "currency",
-      currency: "TRY",
-    }).format(totalPrice)}
-🚚 Kargo Ücreti: ${new Intl.NumberFormat("tr-TR", {
-      style: "currency",
-      currency: "TRY",
-    }).format(shippingCost)}
-💰 Genel Toplam: ${new Intl.NumberFormat("tr-TR", {
-      style: "currency",
-      currency: "TRY",
-    }).format(finalTotal)}
-
-📦 Teslimat Bilgileri:
-Ad Soyad: ${deliveryAddress.fullName}
-Telefon: ${deliveryAddress.phone}
-Adres: ${deliveryAddress.address}
-İl: ${deliveryAddress.city}
-İlçe: ${deliveryAddress.district}
-Ülke: ${deliveryAddress.country}
-
-💳 Ödeme Yöntemi: ${
-      paymentMethod === "havale" ? "Havale/EFT" : "Kapıda Ödeme"
-    }${
-      paymentMethod === "havale"
-        ? `\n\n🏦 Banka Hesap Bilgileri:\n${BANK_ACCOUNTS.map(
-            (acc) => `\n${acc.bank}
-Şube: ${acc.branch}
-Hesap Sahibi: ${acc.accountHolder}
-IBAN: ${acc.iban}`
-          ).join("\n")}`
-        : ""
-    }`;
-
-    // WhatsApp linkini oluştur ve yönlendir
-    const whatsappUrl = `https://wa.me/905532808273?text=${encodeURIComponent(
-      message
-    )}`;
-    window.open(whatsappUrl, "_blank");
-
-    // Sepeti temizle ve popup'ı kapat
-    dispatch(clearCart());
-    onClose();
+    // Burada API çağrısı yapılacak ve sipariş kaydedilecek
 
     // Başarılı mesajı göster
     toast({
       title: "Başarılı",
-      description:
-        "Siparişiniz başarıyla oluşturuldu. WhatsApp üzerinden sizinle iletişime geçeceğiz.",
+      description: "Siparişiniz başarıyla oluşturuldu.",
     });
+
+    // Sepeti temizle
+    dispatch(clearCart());
+
+    // Modal'ı kapat
+    onClose();
+
+    // Siparişlerim sayfasına yönlendir
+    router.push(`/${currentLocale}/orders`);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="p-0 gap-0 md:p-6 md:gap-4">
+        <DialogHeader className="p-4 border-b md:p-0 md:border-none">
+          <DialogTitle className="text-lg font-semibold">
             {step === 1 ? "Teslimat Adresi" : "Ödeme Yöntemi"}
           </DialogTitle>
-          {step === 2 && (
-            <div className="text-sm text-muted-foreground">
-              {isInTurkey
-                ? isInIstanbul
-                  ? "İstanbul içi teslimat için kapıda ödeme veya havale/EFT seçebilirsiniz."
-                  : "İstanbul dışı teslimat için sadece havale/EFT ile ödeme yapabilirsiniz."
-                : "Yurt dışı teslimat için sadece havale/EFT ile ödeme yapabilirsiniz."}
-            </div>
-          )}
         </DialogHeader>
 
-        {step === 1 ? (
-          <form onSubmit={handleAddressSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Ad Soyad</Label>
-              <Input
-                id="fullName"
-                value={deliveryAddress.fullName}
-                onChange={(e) =>
-                  setDeliveryAddress({
-                    ...deliveryAddress,
-                    fullName: e.target.value,
-                  })
-                }
-                placeholder="Ad Soyad"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Telefon</Label>
-              <Input
-                id="phone"
-                value={deliveryAddress.phone}
-                onChange={(e) =>
-                  setDeliveryAddress({
-                    ...deliveryAddress,
-                    phone: e.target.value,
-                  })
-                }
-                placeholder="Telefon Numarası"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="address">Adres</Label>
-              <Textarea
-                id="address"
-                value={deliveryAddress.address}
-                onChange={(e) =>
-                  setDeliveryAddress({
-                    ...deliveryAddress,
-                    address: e.target.value,
-                  })
-                }
-                placeholder="Açık Adres"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+        <div className="flex-1 overflow-y-auto px-4 pb-4 md:overflow-visible md:px-0 md:pb-0">
+          {step === 1 ? (
+            <form onSubmit={handleAddressSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="city">İl</Label>
+                <Label htmlFor="fullName">Ad Soyad</Label>
                 <Input
-                  id="city"
-                  value={deliveryAddress.city}
+                  id="fullName"
+                  value={deliveryAddress.fullName}
                   onChange={(e) =>
                     setDeliveryAddress({
                       ...deliveryAddress,
-                      city: e.target.value,
+                      fullName: e.target.value,
                     })
                   }
-                  placeholder="İl"
+                  placeholder="Ad Soyad"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="district">İlçe</Label>
+                <Label htmlFor="phone">Telefon</Label>
                 <Input
-                  id="district"
-                  value={deliveryAddress.district}
+                  id="phone"
+                  value={deliveryAddress.phone}
                   onChange={(e) =>
                     setDeliveryAddress({
                       ...deliveryAddress,
-                      district: e.target.value,
+                      phone: e.target.value,
                     })
                   }
-                  placeholder="İlçe"
+                  placeholder="Telefon Numarası"
                 />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="country">Ülke</Label>
-              <Input
-                id="country"
-                value={deliveryAddress.country}
-                onChange={(e) =>
-                  setDeliveryAddress({
-                    ...deliveryAddress,
-                    country: e.target.value,
-                  })
-                }
-                placeholder="Ülke"
-              />
-            </div>
-
-            <div className="flex justify-end">
-              <Button type="submit">Devam Et</Button>
-            </div>
-          </form>
-        ) : (
-          <div className="space-y-6">
-            <RadioGroup
-              value={paymentMethod}
-              onValueChange={(value) =>
-                setPaymentMethod(value as PaymentMethod)
-              }
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="havale" id="havale" />
-                <Label htmlFor="havale">Havale/EFT</Label>
+              <div className="space-y-2">
+                <Label htmlFor="address">Adres</Label>
+                <Textarea
+                  id="address"
+                  value={deliveryAddress.address}
+                  onChange={(e) =>
+                    setDeliveryAddress({
+                      ...deliveryAddress,
+                      address: e.target.value,
+                    })
+                  }
+                  placeholder="Açık Adres"
+                />
               </div>
-              {isInIstanbul && (
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="kapidaodeme" id="kapidaodeme" />
-                  <Label htmlFor="kapidaodeme">Kapıda Ödeme</Label>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="city">İl</Label>
+                  <Input
+                    id="city"
+                    value={deliveryAddress.city}
+                    onChange={(e) =>
+                      setDeliveryAddress({
+                        ...deliveryAddress,
+                        city: e.target.value,
+                      })
+                    }
+                    placeholder="İl"
+                  />
                 </div>
-              )}
-            </RadioGroup>
 
-            {paymentMethod === "havale" && (
-              <div className="space-y-4 border rounded-lg p-4 bg-muted/50">
-                <h3 className="font-medium">Banka Hesap Bilgileri</h3>
-                {BANK_ACCOUNTS.map((account, index) => (
-                  <div
-                    key={index}
-                    className="space-y-2 border-b last:border-0 pb-2"
-                  >
-                    <div className="font-medium">{account.bank}</div>
-                    <div className="text-sm">Şube: {account.branch}</div>
-                    <div className="text-sm">
-                      Hesap Sahibi: {account.accountHolder}
-                    </div>
-                    <div className="text-sm font-mono">{account.iban}</div>
+                <div className="space-y-2">
+                  <Label htmlFor="district">İlçe</Label>
+                  <Input
+                    id="district"
+                    value={deliveryAddress.district}
+                    onChange={(e) =>
+                      setDeliveryAddress({
+                        ...deliveryAddress,
+                        district: e.target.value,
+                      })
+                    }
+                    placeholder="İlçe"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="country">Ülke</Label>
+                <Input
+                  id="country"
+                  value={deliveryAddress.country}
+                  onChange={(e) =>
+                    setDeliveryAddress({
+                      ...deliveryAddress,
+                      country: e.target.value,
+                    })
+                  }
+                  placeholder="Ülke"
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Button type="submit">Devam Et</Button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <RadioGroup
+                  value={paymentMethod}
+                  onValueChange={(value: PaymentMethod) =>
+                    setPaymentMethod(value)
+                  }
+                  className="space-y-3"
+                >
+                  <div className="flex items-center space-x-2 border rounded-lg p-4">
+                    <RadioGroupItem value="havale" id="havale" />
+                    <Label
+                      htmlFor="havale"
+                      className="font-medium cursor-pointer flex-1"
+                    >
+                      Havale/EFT
+                    </Label>
                   </div>
-                ))}
+                  {isInIstanbul && (
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2 border rounded-lg p-4">
+                        <RadioGroupItem value="kapidaodeme" id="kapidaodeme" />
+                        <Label
+                          htmlFor="kapidaodeme"
+                          className="font-medium cursor-pointer flex-1"
+                        >
+                          İstanbul içi kapıda ödeme
+                        </Label>
+                      </div>
+                      {paymentMethod === "kapidaodeme" && (
+                        <div className="text-sm text-muted-foreground pl-4">
+                          *İstanbul içi ücretsiz yerinde kurulum
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </RadioGroup>
               </div>
-            )}
 
-            <div className="border-t pt-4 space-y-2">
-              <div className="flex justify-between items-center text-sm">
-                <span>Ara Toplam</span>
-                <span>
-                  {new Intl.NumberFormat("tr-TR", {
-                    style: "currency",
-                    currency: "TRY",
-                  }).format(totalPrice)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span>Kargo Ücreti</span>
-                <span>
-                  {new Intl.NumberFormat("tr-TR", {
-                    style: "currency",
-                    currency: "TRY",
-                  }).format(shippingCost)}
-                </span>
-              </div>
-              {hasDevice && isInIstanbul && (
-                <div className="text-sm text-green-600">
-                  * İstanbul içi ücretsiz cihaz kurulumu
+              {paymentMethod === "havale" && (
+                <div className="space-y-2 border-t pt-4">
+                  <h3 className="font-medium mb-3">
+                    Havale / EFT Banka Bilgileri
+                  </h3>
+                  {BANK_ACCOUNTS.map((account, index) => (
+                    <div key={index} className="space-y-1 text-sm">
+                      <p className="font-medium">{account.bank}</p>
+                      <p>Şube: {account.branch}</p>
+                      <p>Hesap Sahibi: {account.accountHolder}</p>
+                      <p className="font-mono select-all">{account.iban}</p>
+                      {index !== BANK_ACCOUNTS.length - 1 && (
+                        <hr className="my-2" />
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
-              {!isInTurkey ? (
-                <div className="text-sm text-muted-foreground">
-                  * Yurt dışı kargo ücreti: {SHIPPING_COST.INTERNATIONAL} TL
+
+              <div className="border-t pt-4 space-y-2">
+                {!(isInIstanbul && paymentMethod === "kapidaodeme") && (
+                  <div className="flex justify-between text-sm">
+                    <span>Kargo</span>
+                    <span>
+                      {new Intl.NumberFormat("tr-TR", {
+                        style: "currency",
+                        currency: "TRY",
+                      }).format(shippingCost)}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between font-medium">
+                  <span>Toplam</span>
+                  <span>
+                    {new Intl.NumberFormat("tr-TR", {
+                      style: "currency",
+                      currency: "TRY",
+                    }).format(finalTotal)}
+                  </span>
                 </div>
-              ) : !isInIstanbul ? (
-                <div className="text-sm text-muted-foreground">
-                  * Yurt içi kargo ücreti: {SHIPPING_COST.DOMESTIC} TL
-                </div>
-              ) : null}
-              <div className="flex justify-between items-center font-bold pt-2">
-                <span>Genel Toplam</span>
-                <span>
-                  {new Intl.NumberFormat("tr-TR", {
-                    style: "currency",
-                    currency: "TRY",
-                  }).format(finalTotal)}
-                </span>
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                  className="flex-1"
+                >
+                  Geri
+                </Button>
+                <Button onClick={handlePaymentSubmit} className="flex-1">
+                  Siparişi Tamamla
+                </Button>
               </div>
             </div>
-
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setStep(1)}>
-                Geri
-              </Button>
-              <Button onClick={handlePaymentSubmit}>Siparişi Tamamla</Button>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,11 +9,26 @@ import { useDispatch } from "react-redux";
 import { login } from "@/store/authSlice";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { FormSkeleton } from "@/components/form-skeleton";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { useTranslations } from "next-intl";
 
 export default function RegisterPage() {
+  const t = useTranslations();
   const { toast } = useToast();
   const dispatch = useDispatch();
   const router = useRouter();
+  const { currentLocale } = useSelector((state: RootState) => state.theme);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,7 +40,7 @@ export default function RegisterPage() {
 
     if (password !== confirmPassword) {
       toast({
-        title: "Hata",
+        title: t("auth.register"),
         description: "Şifreler eşleşmiyor.",
         variant: "destructive",
       });
@@ -43,45 +59,53 @@ export default function RegisterPage() {
       );
 
       toast({
-        title: "Başarılı",
-        description: "Hesabınız oluşturuldu.",
+        title: t("auth.register"),
+        description: t("auth.registerDescription"),
       });
 
       // Başarılı kayıttan sonra shop sayfasına yönlendir
-      router.push("/shop");
+      router.push(`/${currentLocale}/shop`);
     } catch (error) {
       toast({
-        title: "Hata",
+        title: t("auth.register"),
         description: "Kayıt yapılamadı. Lütfen bilgilerinizi kontrol edin.",
         variant: "destructive",
       });
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="container max-w-md py-16">
+        <FormSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className="container max-w-md py-16">
       <div className="space-y-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Hesap Oluştur</h1>
+          <h1 className="text-3xl font-bold">{t("auth.register")}</h1>
           <p className="text-muted-foreground">
-            Yeni bir hesap oluşturarak alışverişe başlayın
+            {t("auth.registerDescription")}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Ad Soyad</Label>
+            <Label htmlFor="name">{t("profile.fullName")}</Label>
             <Input
               id="name"
               name="name"
               type="text"
-              placeholder="Ad Soyad"
+              placeholder={t("profile.fullName")}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">E-posta</Label>
+            <Label htmlFor="email">{t("profile.email")}</Label>
             <Input
               id="email"
               name="email"
@@ -92,12 +116,12 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Şifre</Label>
+            <Label htmlFor="password">{t("auth.newPassword")}</Label>
             <Input id="password" name="password" type="password" required />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Şifre Tekrar</Label>
+            <Label htmlFor="confirmPassword">{t("auth.confirmPassword")}</Label>
             <Input
               id="confirmPassword"
               name="confirmPassword"
@@ -107,7 +131,7 @@ export default function RegisterPage() {
           </div>
 
           <Button type="submit" className="w-full">
-            Hesap Oluştur
+            {t("auth.register")}
           </Button>
         </form>
 
@@ -117,15 +141,15 @@ export default function RegisterPage() {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground">
-              Zaten hesabınız var mı?
+              {t("auth.haveAccount")}
             </span>
           </div>
         </div>
 
         <div className="text-center">
-          <Link href="/login">
+          <Link href={`/${currentLocale}/login`}>
             <Button variant="outline" className="w-full">
-              Giriş Yap
+              {t("auth.login")}
             </Button>
           </Link>
         </div>

@@ -2,10 +2,12 @@
   "navigation": {
     "home": "Home",
     "products": "Products",
-    "blog": "Blog",
+    "blog": "Useful Information",
     "sleepTest": "Sleep Test",
-    "about": "About",
-    "contact": "Contact"
+    "about": "About Us",
+    "contact": "Contact",
+    "orders": "My Orders",
+    "profile": "My Profile"
   },
   "theme": {
     "light": "Light",
@@ -25,19 +27,30 @@
     "sort": "Sort",
     "sortPriceAsc": "Price (Low to High)",
     "sortPriceDesc": "Price (High to Low)",
-    "sortNewest": "Newest"
+    "sortNewest": "Newest",
+    "sortBy": {
+      "featured": "Featured",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low"
+    },
+    "noResults": "No products found matching these criteria."
   },
   "filters": {
+    "title": "Filters",
     "categories": "Categories",
     "brands": "Brands",
-    "price": "Price"
+    "price": "Price",
+    "minPrice": "Min Price",
+    "maxPrice": "Max Price",
+    "apply": "Apply",
+    "clear": "Clear"
   },
   "categories": {
     "cpap": "CPAP Devices",
     "bipap": "BiPAP Devices",
     "masks": "Masks",
     "accessories": "Accessories",
-    "oxygen": "Oxygen Concentrator"
+    "oxygen_concentrator": "Oxygen Concentrators"
   },
   "categoryDescriptions": {
     "cpap": "CPAP devices for sleep apnea treatment",
@@ -51,5 +64,73 @@
     "description": "Get updates about new products, promotions, and health news",
     "emailPlaceholder": "Your email address",
     "subscribe": "Subscribe"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "forgotPassword": "Forgot Password",
+    "loginDescription": "Sign in to your account to start shopping",
+    "registerDescription": "Create a new account to start shopping",
+    "haveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "resetPassword": "Reset Password",
+    "resetPasswordDescription": "Enter your registered email address and we'll send you a password reset link",
+    "resetPasswordButton": "Send Reset Link",
+    "resetPasswordSuccess": "Email Sent",
+    "resetPasswordSuccessDescription": "A password reset link has been sent to your email address. Please check your inbox."
+  },
+  "profile": {
+    "title": "User Information",
+    "description": "View and edit your personal information",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "city": "City",
+    "district": "District",
+    "changePassword": "Change Password",
+    "changePasswordDescription": "Update your account password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password"
+  },
+  "orders": {
+    "title": "My Orders",
+    "description": "Track all your orders and their status here",
+    "orderNo": "Order No",
+    "date": "Date",
+    "products": "Products",
+    "total": "Total",
+    "status": "Status",
+    "action": "Action",
+    "cancel": "Cancel",
+    "cancelTitle": "Cancel Order",
+    "cancelDescription": "Are you sure you want to cancel this order? This action cannot be undone.",
+    "cancelButton": "Cancel Order",
+    "cancelSuccess": "Success",
+    "cancelSuccessDescription": "Your order has been successfully cancelled.",
+    "status": {
+      "preparing": "Preparing",
+      "shipped": "Shipped",
+      "delivered": "Delivered"
+    }
+  },
+  "checkout": {
+    "deliveryAddress": "Delivery Address",
+    "paymentMethod": "Payment Method",
+    "continue": "Continue",
+    "back": "Back",
+    "completeOrder": "Complete Order",
+    "havaleEft": "Bank Transfer",
+    "cashOnDelivery": "Cash on Delivery (Istanbul only)",
+    "freeInstallation": "*Free on-site installation in Istanbul",
+    "bankAccounts": "Bank Account Details",
+    "shipping": "Shipping",
+    "total": "Total"
   }
 } 

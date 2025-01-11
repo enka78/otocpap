@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { CartSheet } from "@/components/cart-sheet";
+import { NextIntlClientProvider } from "next-intl";
 import { use } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -24,7 +24,6 @@ export default function RootLayout({
         <Providers locale={locale}>
           <div className="relative min-h-screen">
             <Navbar />
-            <CartSheet />
             <main>{children}</main>
             <Footer />
           </div>

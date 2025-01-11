@@ -11,6 +11,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetFooter,
 } from "@/components/ui/sheet";
 import { ShoppingCart, Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
@@ -158,18 +159,29 @@ export function CartSheet() {
                     </div>
                   </div>
                 ))}
-                <div className="border-t pt-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="font-medium">Toplam</span>
-                    <span className="font-bold">{formattedTotalPrice}</span>
+                <SheetFooter>
+                  <div className="space-y-4 w-full">
+                    <div className="flex items-center justify-between text-base font-medium">
+                      <span>Toplam</span>
+                      <span>
+                        {new Intl.NumberFormat("tr-TR", {
+                          style: "currency",
+                          currency: "TRY",
+                        }).format(totalPrice)}
+                      </span>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setIsCheckoutOpen(true);
+                        setIsOpen(false);
+                      }}
+                      className="w-full"
+                      disabled={cartItems.length === 0}
+                    >
+                      Satın Al
+                    </Button>
                   </div>
-                  <Button
-                    className="w-full"
-                    onClick={() => setIsCheckoutOpen(true)}
-                  >
-                    Satın Al
-                  </Button>
-                </div>
+                </SheetFooter>
               </div>
             )}
           </div>

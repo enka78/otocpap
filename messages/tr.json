@@ -5,7 +5,9 @@
     "blog": "Faydalı Bilgiler",
     "sleepTest": "Uyku Testi",
     "about": "Hakkımızda",
-    "contact": "İletişim"
+    "contact": "İletişim",
+    "orders": "Siparişlerim",
+    "profile": "Kullanıcı Bilgilerim"
   },
   "theme": {
     "light": "Açık",
@@ -30,7 +32,8 @@
       "featured": "Öne Çıkanlar",
       "priceAsc": "Fiyat: Düşükten Yükseğe",
       "priceDesc": "Fiyat: Yüksekten Düşüğe"
-    }
+    },
+    "noResults": "Bu kriterlere uygun ürün bulunamadı."
   },
   "filters": {
     "title": "Filtreler",
@@ -61,5 +64,73 @@
     "description": "Yeni ürünler, kampanyalar ve sağlık haberleri hakkında bilgi alın",
     "emailPlaceholder": "E-posta adresiniz",
     "subscribe": "Kayıt Ol"
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "logout": "Çıkış Yap",
+    "forgotPassword": "Şifremi Unuttum",
+    "loginDescription": "Hesabınıza giriş yaparak alışverişe başlayın",
+    "registerDescription": "Yeni hesap oluşturarak alışverişe başlayın",
+    "haveAccount": "Zaten hesabınız var mı?",
+    "noAccount": "Hesabınız yok mu?",
+    "resetPassword": "Şifre Yenileme",
+    "resetPasswordDescription": "Kayıtlı e-posta adresinizi girin, şifre yenileme bağlantısını gönderelim",
+    "resetPasswordButton": "Şifre Yenileme Bağlantısı Gönder",
+    "resetPasswordSuccess": "E-posta Gönderildi",
+    "resetPasswordSuccessDescription": "Şifre yenileme bağlantısı e-posta adresinize gönderildi. Lütfen gelen kutunuzu kontrol edin."
+  },
+  "profile": {
+    "title": "Kullanıcı Bilgileri",
+    "description": "Kişisel bilgilerinizi görüntüleyin ve düzenleyin",
+    "edit": "Düzenle",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "fullName": "Ad Soyad",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "address": "Adres",
+    "city": "İl",
+    "district": "İlçe",
+    "changePassword": "Şifre Değiştir",
+    "changePasswordDescription": "Hesabınızın şifresini güncelleyin",
+    "currentPassword": "Mevcut Şifre",
+    "newPassword": "Yeni Şifre",
+    "confirmPassword": "Yeni Şifre (Tekrar)",
+    "updatePassword": "Şifreyi Güncelle"
+  },
+  "orders": {
+    "title": "Siparişlerim",
+    "description": "Tüm siparişlerinizi ve durumlarını buradan takip edebilirsiniz",
+    "orderNo": "Sipariş No",
+    "date": "Tarih",
+    "products": "Ürünler",
+    "total": "Toplam",
+    "status": "Durum",
+    "action": "İşlem",
+    "cancel": "İptal Et",
+    "cancelTitle": "Siparişi İptal Et",
+    "cancelDescription": "Bu siparişi iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "cancelButton": "İptal Et",
+    "cancelSuccess": "Başarılı",
+    "cancelSuccessDescription": "Siparişiniz başarıyla iptal edildi.",
+    "status": {
+      "preparing": "Hazırlanıyor",
+      "shipped": "Kargoya Verildi",
+      "delivered": "Teslim Edildi"
+    }
+  },
+  "checkout": {
+    "deliveryAddress": "Teslimat Adresi",
+    "paymentMethod": "Ödeme Yöntemi",
+    "continue": "Devam Et",
+    "back": "Geri",
+    "completeOrder": "Siparişi Tamamla",
+    "havaleEft": "Havale/EFT",
+    "cashOnDelivery": "İstanbul içi kapıda ödeme",
+    "freeInstallation": "*İstanbul içi ücretsiz yerinde kurulum",
+    "bankAccounts": "Havale / EFT Banka Bilgileri",
+    "shipping": "Kargo",
+    "total": "Toplam"
   }
 } 

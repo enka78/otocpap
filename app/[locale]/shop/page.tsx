@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ProductFilters } from "@/components/product-filters";
 import { ProductCard } from "@/components/product-card";
+import { ProductSkeleton } from "@/components/product-skeleton";
 import { Button } from "@/components/ui/button";
 import { Grid2X2, Grid3X3, List } from "lucide-react";
 import {
@@ -111,6 +112,7 @@ export default function ShopPage({
   const [viewMode, setViewMode] = React.useState<ViewMode>("grid-3");
   const [sortOption, setSortOption] = React.useState<SortOption>("featured");
   const [isMobile, setIsMobile] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
@@ -130,6 +132,14 @@ export default function ShopPage({
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  React.useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   // Kullanıcı giriş yapmamışsa içeriği gösterme
@@ -250,7 +260,7 @@ export default function ShopPage({
           </div>
 
           <div
-            className={`grid gap-6 ${
+            className={`grid gap-4 md:gap-6 ${
               viewMode === "grid-4"
                 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
                 : viewMode === "grid-3"
@@ -258,14 +268,23 @@ export default function ShopPage({
                 : "grid-cols-1"
             }`}
           >
-            {sortedProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                listView={viewMode === "list"}
-                showPrice={true}
-              />
-            ))}
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <ProductSkeleton
+                    key={index}
+                    view={
+                      isMobile ? "list" : viewMode === "list" ? "list" : "grid"
+                    }
+                  />
+                ))
+              : sortedProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    listView={viewMode === "list"}
+                    showPrice={true}
+                  />
+                ))}
           </div>
 
           {sortedProducts.length === 0 && (

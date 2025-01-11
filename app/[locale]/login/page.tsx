@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,58 +9,58 @@ import { useDispatch } from "react-redux";
 import { login } from "@/store/authSlice";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { FormSkeleton } from "@/components/form-skeleton";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { useTranslations } from "next-intl";
 
 export default function LoginPage() {
+  const t = useTranslations();
   const { toast } = useToast();
   const dispatch = useDispatch();
   const router = useRouter();
+  const { currentLocale } = useSelector((state: RootState) => state.theme);
+  const [isLoading, setIsLoading] = React.useState(true);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  React.useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
-    try {
-      // Burada normalde API'ye istek atılacak
-      // Şimdilik dummy login yapıyoruz
-      dispatch(
-        login({
-          id: "1",
-          name: "Test User",
-          email: email,
-        })
-      );
-
-      toast({
-        title: "Başarılı",
-        description: "Giriş yapıldı.",
-      });
-
-      // Başarılı girişten sonra shop sayfasına yönlendir
-      router.push("/shop");
-    } catch (error) {
-      toast({
-        title: "Hata",
-        description: "Giriş yapılamadı. Lütfen bilgilerinizi kontrol edin.",
-        variant: "destructive",
-      });
-    }
+    // Login işlemi başarılı olduğunda
+    dispatch(login());
+    toast({
+      title: t("auth.login"),
+      description: t("auth.loginDescription"),
+    });
+    // Shop sayfasına yönlendir
+    router.push(`/${currentLocale}/shop`);
   };
+
+  if (isLoading) {
+    return (
+      <div className="container max-w-md py-16">
+        <FormSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-md py-16">
       <div className="space-y-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Giriş Yap</h1>
-          <p className="text-muted-foreground">
-            Hesabınıza giriş yaparak alışverişe başlayın
-          </p>
+          <h1 className="text-3xl font-bold">{t("auth.login")}</h1>
+          <p className="text-muted-foreground">{t("auth.loginDescription")}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">E-posta</Label>
+            <Label htmlFor="email">{t("profile.email")}</Label>
             <Input
               id="email"
               name="email"
@@ -70,21 +71,21 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Şifre</Label>
+            <Label htmlFor="password">{t("auth.currentPassword")}</Label>
             <Input id="password" name="password" type="password" required />
           </div>
 
           <Button type="submit" className="w-full">
-            Giriş Yap
+            {t("auth.login")}
           </Button>
         </form>
 
         <div className="text-center text-sm">
           <Link
-            href="/forgot-password"
+            href={`/${currentLocale}/forgot-password`}
             className="text-primary hover:underline"
           >
-            Şifremi Unuttum
+            {t("auth.forgotPassword")}
           </Link>
         </div>
 
@@ -94,15 +95,15 @@ export default function LoginPage() {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground">
-              Hesabınız yok mu?
+              {t("auth.noAccount")}
             </span>
           </div>
         </div>
 
         <div className="text-center">
-          <Link href="/register">
+          <Link href={`/${currentLocale}/register`}>
             <Button variant="outline" className="w-full">
-              Hesap Oluştur
+              {t("auth.register")}
             </Button>
           </Link>
         </div>

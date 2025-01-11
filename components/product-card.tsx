@@ -18,7 +18,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface Product {
   id: string;
-  title: string;
+  name: string;
   description: string;
   price: number;
   image: string;
@@ -42,7 +42,10 @@ export function ProductCard({
   const cartItems = useSelector((state: RootState) => state.cart.items);
 
   const whatsappNumber = "905532808273";
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${product.title}`;
+  const whatsappMessage = encodeURIComponent(
+    `Merhaba, ${product.name} ürünü hakkında bilgi almak istiyorum.`
+  );
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
   const handleAddToCart = () => {
     const existingItem = cartItems.find((item) => item.id === product.id);
@@ -77,7 +80,7 @@ export function ProductCard({
         <div className="relative aspect-square overflow-hidden rounded-md">
           <Image
             src={product.image}
-            alt={product.title}
+            alt={product.name}
             fill
             className="object-cover transition-transform group-hover:scale-105"
           />
@@ -85,7 +88,7 @@ export function ProductCard({
       </div>
 
       <div className="space-y-2 pt-4">
-        <h3 className="font-medium">{product.title}</h3>
+        <h3 className="font-medium">{product.name}</h3>
         {showPrice && <div className="text-lg font-bold">{formattedPrice}</div>}
         <p className="text-sm text-muted-foreground line-clamp-2">
           {product.description}
@@ -100,12 +103,12 @@ export function ProductCard({
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{product.title}</DialogTitle>
+                <DialogTitle>{product.name}</DialogTitle>
                 <DialogDescription className="space-y-4 pt-4">
                   <div className="relative aspect-video overflow-hidden rounded-lg">
                     <Image
                       src={product.image}
-                      alt={product.title}
+                      alt={product.name}
                       fill
                       className="object-cover"
                     />
@@ -131,12 +134,7 @@ export function ProductCard({
             </Button>
           ) : (
             <Button
-              onClick={() =>
-                window.open(
-                  whatsappUrl,
-                  "_blank"
-                )
-              }
+              onClick={() => window.open(whatsappUrl, "_blank")}
               size="sm"
             >
               Whatsapp ile iletişime geç

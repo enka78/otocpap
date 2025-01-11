@@ -10,9 +10,28 @@ import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { setTheme, setLocale } from "@/store/themeSlice";
-import { ChevronDown, Menu, Moon, Sun, X } from "lucide-react";
+import {
+  ChevronDown,
+  Menu,
+  Moon,
+  Sun,
+  X,
+  User,
+  LogOut,
+  Settings,
+  ShoppingBag,
+} from "lucide-react";
 import { MegaMenu } from "./mega-menu";
 import { CartSheet } from "./cart-sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { logout } from "@/store/authSlice";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const t = useTranslations();
@@ -26,6 +45,7 @@ export function Navbar() {
   const [isMegaMenuOpen, setIsMegaMenuOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
+  const router = useRouter();
 
   React.useEffect(() => {
     setMounted(true);
@@ -48,6 +68,10 @@ export function Navbar() {
     { href: "/about", label: t("navigation.about") },
     { href: "/contact", label: t("navigation.contact") },
   ];
+
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
 
   React.useEffect(() => {
     if (reduxTheme) {
@@ -160,6 +184,53 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <CartSheet />
 
+            {isAuthenticated && (
+              <div className="relative group">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:scale-110 transition-transform relative"
+                >
+                  <User className="h-4 w-4" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
+                </Button>
+                <div className="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="w-56 rounded-md border bg-popover p-1 text-popover-foreground shadow-md">
+                    <Link
+                      href={`/${currentLocale}/profile`}
+                      className={cn(
+                        "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Kullanıcı Bilgilerim</span>
+                    </Link>
+                    <Link
+                      href={`/${currentLocale}/orders`}
+                      className={cn(
+                        "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <ShoppingBag className="mr-2 h-4 w-4" />
+                      <span>Siparişlerim</span>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        dispatch(logout());
+                        router.push(`/${currentLocale}/login`);
+                      }}
+                      className={cn(
+                        "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-red-100 text-red-600 hover:text-red-700"
+                      )}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Çıkış Yap</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <Button
               variant="ghost"
               size="icon"
@@ -243,6 +314,38 @@ export function Navbar() {
               >
                 Shop
               </Link>
+              {isAuthenticated && (
+                <>
+                  <div className="h-px bg-border" />
+                  <Link
+                    href={`/${currentLocale}/profile`}
+                    className="flex items-center p-2 hover:bg-accent rounded-lg"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Kullanıcı Bilgilerim</span>
+                  </Link>
+                  <Link
+                    href={`/${currentLocale}/orders`}
+                    className="flex items-center p-2 hover:bg-accent rounded-lg"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <ShoppingBag className="mr-2 h-4 w-4" />
+                    <span>Siparişlerim</span>
+                  </Link>
+                  <button
+                    className="flex items-center w-full p-2 hover:bg-accent rounded-lg text-red-600"
+                    onClick={() => {
+                      dispatch(logout());
+                      router.push(`/${currentLocale}/login`);
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Çıkış Yap</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
